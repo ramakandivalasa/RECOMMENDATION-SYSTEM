@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anime Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Anime Recommendation System</h1>
+        <form method="POST">
+            <input name="user_id" placeholder="Enter User ID" required><br>
+            <select name="genre" required>
+                <option disabled selected>Select Genre</option>
+                {% for g in genres %}
+                    <option value="{{ g }}">{{ g }}</option>
+                {% endfor %}
+            </select><br>
+            <button type="submit">Get Recommendations</button>
+        </form>
+
+        {% if recommendations %}
+            <h2>Top Recommendations</h2>
+            {% for item, score in recommendations %}
+                <div class="card">
+                    <strong>{{ item }}</strong><br>
+                    Predicted Rating: {{ score | round(2) }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</body>
+</html>
