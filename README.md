@@ -130,3 +130,6 @@ def recommend(user_id, genre):
 flask
 pandas
 scikit-surprise
+![Image](https://github.com/user-attachments/assets/d76947cc-1107-4dde-8d53-297d9f31e111)
+
+![Image](https://github.com/user-attachments/assets/90c4f3b9-0482-4688-b853-4371e006916b)
