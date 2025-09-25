@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request
-from surprise import Dataset, Reader, SVD
 import pandas as pd
-import requests
 
 app = Flask(__name__)
 
@@ -19,13 +17,13 @@ sample_data = [
 
 df = pd.DataFrame(sample_data)
 
-def train_model():
-    reader = Reader(rating_scale=(1, 5))
-    data = Dataset.load_from_df(df[['user', 'item', 'rating']], reader)
-    trainset = data.build_full_trainset()
-    algo = SVD()
-    algo.fit(trainset)
-    return algo
+# def train_model():
+#     reader = Reader(rating_scale=(1, 5))
+#     data = Dataset.load_from_df(df[['user', 'item', 'rating']], reader)
+#     trainset = data.build_full_trainset()
+#     algo = SVD()
+#     algo.fit(trainset)
+#     return algo
 
 def get_trending_anime_by_genre(genre):
     fallback = {
@@ -39,11 +37,22 @@ def get_trending_anime_by_genre(genre):
     return fallback.get(genre, [])
 
 def recommend(user_id, genre):
-    algo = train_model()
+    # algo = train_model()
     user_id = int(user_id)
     seen_items = df[df['user'] == user_id]['item'].tolist()
-    unseen_items = [anime for anime in get_trending_anime_by_genre(genre) if anime not in seen_items]
-    predictions = [(anime, algo.predict(user_id, anime).est) for anime in unseen_items]
+    # unseen_items = [anime for anime in get_trending_anime_by_genre(genre) if anime not in seen_items]
+    # predictions = [(anime, algo.predict(user_id, anime).est) for anime in unseen_items]
+    # predictions.sort(key=lambda x: x[1], reverse=True)
+    # Candidate anime (from fallback list for chosen genre)
+    candidates = [anime for anime in get_trending_anime_by_genre(genre) if anime not in seen_items]
+
+    # If we had ratings in df, take avg rating for that anime
+    avg_ratings = df.groupby("item")["rating"].mean().to_dict()
+
+    # Predict scores: use avg rating if available, else 3.0 baseline
+    predictions = [(anime, avg_ratings.get(anime, 3.0)) for anime in candidates]
+
+    # Sort high → low
     predictions.sort(key=lambda x: x[1], reverse=True)
     return predictions[:5]
 
@@ -60,3 +69,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
